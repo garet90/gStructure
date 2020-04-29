@@ -5,6 +5,14 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Vector;
 import org.jnbt.NBTCompression;
 import org.jnbt.NBTReader;
 
@@ -24,10 +32,13 @@ public class gStructure {
 	private int height;
 	private int depth;
 	
-	public gStructure() {
+	Plugin plugin;
+	
+	public gStructure(Plugin plugin) {
 		blocks = new ArrayList<gBlock>();
 		entities = new ArrayList<gEntity>();
 		palette = new ArrayList<gPalette>();
+		this.plugin = plugin;
 	}
 	
 	public int getDataVersion() {
@@ -204,5 +215,54 @@ public class gStructure {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	public void generate(Location location) {
+		// generate blocks
+		for (int i = 0; i < blocks.size(); i++) {
+			gBlock block = blocks.get(i);
+			Location blockLocation = location.clone().add(new Vector(block.getX(), block.getY(), block.getZ()));
+			paint(blockLocation, palette.get(block.getState()));
+		}
+		// add entities
+		for (int i = 0; i < entities.size(); i++) {
+			gEntity entity = entities.get(i);
+			Location entityLocation = location.clone().add(new Vector(entity.getX(), entity.getY(), entity.getZ()));
+			summonEntity(entityLocation, entity.getEntityData());
+		}
+	}
+	
+	private void paint(Location location, gPalette palette) {
+		World world = location.getWorld();
+		Block block = world.getBlockAt(location);
+		String material = palette.getName().split(":")[1];
+		block.setType(Material.matchMaterial(material));
+		palette.getProperties().forEach((name, value) -> {
+			block.setMetadata(name, new gMetaDataValue(value, plugin));
+		});
+	}
+	
+	private Entity summonEntity(Location location, gEntityData entityData) {
+		EntityType entityType = EntityType.valueOf(entityData.getId());
+		Entity entity = location.getWorld().spawnEntity(location, entityType);
+		entity.setVelocity(new Vector(entityData.getDX(), entityData.getDY(), entityData.getDZ()));
+		entity.setRotation(entityData.getYaw(), entityData.getPitch());
+		entity.setFallDistance(entityData.getFallDistance());
+		entity.setFireTicks(entityData.getFire());
+		entity.setInvulnerable(entityData.getInvulnerableAsBoolean());
+		entity.setPortalCooldown(entityData.getPortalCooldown());
+		entity.setCustomName(entityData.getCustomName());
+		entity.setCustomNameVisible(entityData.getCustomNameVisibleAsBoolean());
+		entity.setSilent(entityData.getSilentAsBoolean());
+		entity.setGlowing(entityData.getGlowingAsBoolean());
+		List<gEntityData> passengers = entityData.getPassengers();
+		for (int i = 0; i < passengers.size(); i++) {
+			entity.addPassenger(summonEntity(location, passengers.get(i)));
+		}
+		List<String> tags = entityData.getTags();
+		for (int i = 0; i < tags.size(); i++) {
+			entity.addScoreboardTag(tags.get(i));
+		}
+		return entity;
 	}
 }

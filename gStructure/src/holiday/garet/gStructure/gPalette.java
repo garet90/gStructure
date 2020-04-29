@@ -25,4 +25,8 @@ public class gPalette {
 	public void setProperty(String key, String value) {
 		properties.put(key, value);
 	}
+	
+	public HashMap<String, String> getProperties() {
+		return properties;
+	}
 }

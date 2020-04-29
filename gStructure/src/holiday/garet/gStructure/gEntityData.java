@@ -197,7 +197,14 @@ public class gEntityData {
 		return invulnerable;
 	}
 	
-	public int portalCooldown() {
+	public boolean getInvulnerableAsBoolean() {
+		if (invulnerable == 1) {
+			return true;
+		}
+		return false;
+	}
+	
+	public int getPortalCooldown() {
 		return portalCooldown;
 	}
 	
@@ -217,8 +224,22 @@ public class gEntityData {
 		return customNameVisible;
 	}
 	
+	public boolean getCustomNameVisibleAsBoolean() {
+		if (customNameVisible == 1) {
+			return true;
+		}
+		return false;
+	}
+	
 	public byte getSilent() {
 		return silent;
+	}
+	
+	public boolean getSilentAsBoolean() {
+		if (silent == 1) {
+			return true;
+		}
+		return false;
 	}
 	
 	public List<gEntityData> getPassengers() {
@@ -227,6 +248,13 @@ public class gEntityData {
 	
 	public byte getGlowing() {
 		return glowing;
+	}
+	
+	public boolean getGlowingAsBoolean() {
+		if (glowing == 1) {
+			return true;
+		}
+		return false;
 	}
 	
 	public List<String> getTags() {
