@@ -1,7 +1,6 @@
 package holiday.garet.gStructure;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +12,15 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
-import org.jnbt.NBTCompression;
-import org.jnbt.NBTReader;
+
+import net.querz.nbt.io.NBTUtil;
+import net.querz.nbt.io.NamedTag;
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.DoubleTag;
+import net.querz.nbt.tag.FloatTag;
+import net.querz.nbt.tag.IntTag;
+import net.querz.nbt.tag.ListTag;
+import net.querz.nbt.tag.StringTag;
 
 public class gStructure {
 	
@@ -60,161 +66,123 @@ public class gStructure {
 	public void read(File file) {
 		try {
 			if (file.exists()) {
-				NBTReader reader = new NBTReader(new FileInputStream(file), NBTCompression.GZIP);
-				reader.beginObject();
+				NamedTag nbt = NBTUtil.read(file);
+				CompoundTag nbt_t = (CompoundTag) nbt.getTag(); // TODO make sure works
 				
-				this.dataVersion = reader.nextInt(); // DataVersion
+				this.dataVersion = nbt_t.getInt("DataVersion"); // DataVersion
 				
-				reader.beginArray(); // blocks
-				while (reader.hasNext()) {
+				ListTag<CompoundTag> blocks = nbt_t.getListTag("blocks").asCompoundTagList(); // blocks
+				blocks.forEach((block) -> {
 					gBlock b = new gBlock();
-					reader.beginObject(); // blockObject
-					reader.beginArray(); // pos
-					b.setX(reader.nextInt()); // x
-					b.setY(reader.nextInt()); // y
-					b.setZ(reader.nextInt()); // z
-					reader.endArray();
-					b.setState(reader.nextInt()); // state
+					ListTag<IntTag> pos = block.getListTag("pos").asIntTagList();
+					b.setX(pos.get(0).asInt()); // x
+					b.setY(pos.get(1).asInt()); // y
+					b.setZ(pos.get(2).asInt()); // z
+					b.setState(block.getInt("state")); // state
 					this.blocks.add(b);
-					reader.endObject();
-				}
-				reader.endArray();
+					// TODO add nbt
+				});
 				
-				reader.beginArray(); // entities
-				while (reader.hasNext()) {
+				ListTag<CompoundTag> entities = nbt_t.getListTag("entities").asCompoundTagList();
+				entities.forEach((entity) -> {
 					gEntity e = new gEntity();
-					reader.beginObject();
+					ListTag<DoubleTag> pos = entity.getListTag("pos").asDoubleTagList();
+					e.setX(pos.get(0).asDouble());
+					e.setY(pos.get(1).asDouble());
+					e.setZ(pos.get(2).asDouble());
+					ListTag<IntTag> blockPos = entity.getListTag("blockPos").asIntTagList();
+					e.setBlockX(blockPos.get(0).asInt());
+					e.setBlockY(blockPos.get(1).asInt());
+					e.setBlockZ(blockPos.get(2).asInt());
 					
-					reader.beginArray();
-					e.setX(reader.nextDouble());
-					e.setY(reader.nextDouble());
-					e.setZ(reader.nextDouble());
-					reader.endArray();
-					
-					reader.beginArray();
-					e.setBlockX(reader.nextInt());
-					e.setBlockY(reader.nextInt());
-					e.setBlockZ(reader.nextInt());
-					reader.endArray();
-					
-					e.setEntityData(readEntity(reader));
-					
+					e.setEntityData(readEntity(entity.getCompoundTag("nbt")));
 					this.entities.add(e);
-					reader.endObject();
-				}
-				reader.endArray();
+				});
 				
-				reader.beginArray(); // palette
-				while (reader.hasNext()) {
+				ListTag<CompoundTag> palette = nbt_t.getListTag("palette").asCompoundTagList();
+				for (int i = 0; i < palette.size(); i++) {
+					CompoundTag pal = palette.get(i);
 					gPalette p = new gPalette();
-					reader.beginObject(); // paletteObject
-					p.setName(reader.nextString()); // Name
-					if (reader.hasNext()) {
-						reader.beginObject();
-						while (reader.hasNext()) {
-							p.setProperty(reader.nextName(), reader.nextString());
-						}
-						reader.endObject();
-					}
+					
+					p.setName(pal.getString("Name"));
+					
+					CompoundTag Properties = pal.getCompoundTag("Properties");
+					
+					Properties.forEach((Property) -> {
+						p.setProperty(Property.getKey(), Property.getValue().toString());
+					});
 					this.palette.add(p);
-					reader.endObject();
 				}
-				reader.endArray();
 				
-				reader.beginArray();
-				this.width = reader.nextInt();
-				this.height = reader.nextInt();
-				this.depth = reader.nextInt();
-				reader.endArray();
-				
-				reader.endObject();
-				reader.close();
+				ListTag<IntTag> size = nbt_t.getListTag("size").asIntTagList();
+				this.width = size.get(0).asInt();
+				this.height = size.get(1).asInt();
+				this.depth = size.get(2).asInt();
 			}
 		} catch (Exception e) {
 			
 		}
 	}
 	
-	private gEntityData readEntity(NBTReader reader) {
-		try {
-			gEntityData e = new gEntityData();
-			reader.beginObject();
-			
-			if (reader.nextName() == "id") {
-				e.setId(reader.nextString());
-			}
-			
-			reader.beginArray();
-			e.setX(reader.nextDouble());
-			e.setY(reader.nextDouble());
-			e.setZ(reader.nextDouble());
-			reader.endArray();
-			
-			reader.beginArray();
-			e.setDX(reader.nextDouble());
-			e.setDY(reader.nextDouble());
-			e.setDZ(reader.nextDouble());
-			reader.endArray();
-			
-			reader.beginArray();
-			e.setYaw(reader.nextFloat());
-			e.setPitch(reader.nextFloat());
-			reader.endArray();
-			
-			e.setFallDistance(reader.nextFloat());
-			
-			e.setFire(reader.nextShort());
-			
-			e.setAir(reader.nextShort());
-			
-			e.setOnGround(reader.nextByte());
-			
-			if (reader.nextName() == "Dimension") {
-				e.setDimension(reader.nextInt());
-			}
-			
-			e.setInvulnerable(reader.nextByte());
-			
-			e.setPortalCooldown(reader.nextInt());
-			
-			e.setUUIDMost(reader.nextLong());
-			e.setUUIDLeast(reader.nextLong());
-			
-			if (reader.nextName() == "CustomName") {
-				e.setCustomName(reader.nextString());
-			}
-			
-			if (reader.nextName() == "CustomNameVisible") {
-				e.setCustomNameVisible(reader.nextByte());
-			}
-			
-			if (reader.nextName() == "Silent") {
-				e.setSilent(reader.nextByte());
-			}
-			
-			reader.beginArray();
-			List<gEntityData> passengers = new ArrayList<gEntityData>();
-			while (reader.hasNext()) {
-				passengers.add(readEntity(reader));
-			}
-			e.setPassengers(passengers);
-			reader.endArray();
-			
-			e.setGlowing(reader.nextByte());
-			
-			reader.beginArray();
-			List<String> tags = new ArrayList<String>();
-			while (reader.hasNext()) {
-				tags.add(reader.nextString());
-			}
-			e.setTags(tags);
-			reader.endArray();
-			
-			reader.endObject();
-			return e;
-		} catch (Exception e) {
-			return null;
-		}
+	private gEntityData readEntity(CompoundTag reader) {
+		gEntityData e = new gEntityData();
+		
+		e.setId(reader.getString("id"));
+		
+		ListTag<DoubleTag> Pos = reader.getListTag("Pos").asDoubleTagList();
+		e.setX(Pos.get(0).asDouble());
+		e.setY(Pos.get(1).asDouble());
+		e.setZ(Pos.get(2).asDouble());
+
+		ListTag<DoubleTag> Motion = reader.getListTag("Motion").asDoubleTagList();
+		e.setDX(Motion.get(0).asDouble());
+		e.setDY(Motion.get(1).asDouble());
+		e.setDZ(Motion.get(2).asDouble());
+		
+		ListTag<FloatTag> Rotation = reader.getListTag("Rotation").asFloatTagList();
+		e.setYaw(Rotation.get(0).asFloat());
+		e.setPitch(Rotation.get(1).asFloat());
+		
+		e.setFallDistance(reader.getFloat("FallDistance"));
+		
+		e.setFire(reader.getShort("Fire"));
+		
+		e.setAir(reader.getShort("Air"));
+		
+		e.setOnGround(reader.getByte("OnGround"));
+		
+		e.setDimension(reader.getInt("Dimension"));
+		
+		e.setInvulnerable(reader.getByte("Invulnerable"));
+		
+		e.setPortalCooldown(reader.getInt("PortalCooldown"));
+		
+		e.setUUIDMost(reader.getLong("UUIDMost"));
+		e.setUUIDLeast(reader.getLong("UUIDLeast"));
+		
+		e.setCustomName(reader.getString("CustomName"));
+		
+		e.setCustomNameVisible(reader.getByte("CustomNameVisible"));
+		
+		e.setSilent(reader.getByte("Silent"));
+		
+		List<gEntityData> passengers = new ArrayList<gEntityData>();
+		ListTag<CompoundTag> Passengers = reader.getListTag("Passengers").asCompoundTagList();
+		Passengers.forEach((Passenger) -> {
+			passengers.add(readEntity(Passenger));
+		});
+		e.setPassengers(passengers);
+		
+		e.setGlowing(reader.getByte("Glowing"));
+
+		List<String> tags = new ArrayList<String>();
+		ListTag<StringTag> Tags = reader.getListTag("Tags").asStringTagList();
+		Tags.forEach((TagE) -> {
+			tags.add(TagE.getValue());
+		});
+		e.setTags(tags);
+		
+		return e;
 	}
 	
 	public void generate(Location location) {
