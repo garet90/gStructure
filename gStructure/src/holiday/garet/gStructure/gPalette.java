@@ -11,7 +11,7 @@ public class gPalette {
 	HashMap<String, String> properties;
 	
 	public gPalette() {
-		
+		properties = new HashMap<String, String>();
 	}
 	
 	public String getName() {

@@ -1,8 +1,11 @@
 package holiday.garet.gStructure;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,6 +24,7 @@ import net.querz.nbt.tag.FloatTag;
 import net.querz.nbt.tag.IntTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.StringTag;
+import net.querz.nbt.tag.Tag;
 
 public class gStructure {
 	
@@ -64,63 +68,72 @@ public class gStructure {
 	}
 	
 	public void read(File file) {
-		try {
-			if (file.exists()) {
-				NamedTag nbt = NBTUtil.read(file);
-				CompoundTag nbt_t = (CompoundTag) nbt.getTag(); // TODO make sure works
+		if (file.exists()) {
+			NamedTag nbt = new NamedTag(null, null);
+			try {
+				nbt = NBTUtil.read(file);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			CompoundTag nbt_t = (CompoundTag) nbt.getTag(); // TODO make sure works
+			
+			this.dataVersion = nbt_t.getInt("DataVersion"); // DataVersion
+			
+			ListTag<CompoundTag> blocks = nbt_t.getListTag("blocks").asCompoundTagList(); // blocks
+			blocks.forEach((block) -> {
+				gBlock b = new gBlock();
+				ListTag<IntTag> pos = block.getListTag("pos").asIntTagList();
+				b.setX(pos.get(0).asInt()); // x
+				b.setY(pos.get(1).asInt()); // y
+				b.setZ(pos.get(2).asInt()); // z
+				b.setState(block.getInt("state")); // state
+				this.blocks.add(b);
+				// TODO add nbt
+			});
+			plugin.getLogger().info("Loaded " + this.blocks.size() + " blocks");
+			
+			ListTag<CompoundTag> entities = nbt_t.getListTag("entities").asCompoundTagList();
+			entities.forEach((entity) -> {
+				gEntity e = new gEntity();
+				ListTag<DoubleTag> pos = entity.getListTag("pos").asDoubleTagList();
+				e.setX(pos.get(0).asDouble());
+				e.setY(pos.get(1).asDouble());
+				e.setZ(pos.get(2).asDouble());
+				ListTag<IntTag> blockPos = entity.getListTag("blockPos").asIntTagList();
+				e.setBlockX(blockPos.get(0).asInt());
+				e.setBlockY(blockPos.get(1).asInt());
+				e.setBlockZ(blockPos.get(2).asInt());
 				
-				this.dataVersion = nbt_t.getInt("DataVersion"); // DataVersion
+				e.setEntityData(readEntity(entity.getCompoundTag("nbt")));
+				this.entities.add(e);
+			});
+			plugin.getLogger().info("Loaded " + this.entities.size() + " entities");
+			
+			ListTag<CompoundTag> palette = nbt_t.getListTag("palette").asCompoundTagList();
+			palette.forEach((pal) -> {
+				gPalette p = new gPalette();
 				
-				ListTag<CompoundTag> blocks = nbt_t.getListTag("blocks").asCompoundTagList(); // blocks
-				blocks.forEach((block) -> {
-					gBlock b = new gBlock();
-					ListTag<IntTag> pos = block.getListTag("pos").asIntTagList();
-					b.setX(pos.get(0).asInt()); // x
-					b.setY(pos.get(1).asInt()); // y
-					b.setZ(pos.get(2).asInt()); // z
-					b.setState(block.getInt("state")); // state
-					this.blocks.add(b);
-					// TODO add nbt
-				});
+				p.setName(pal.getString("Name"));
 				
-				ListTag<CompoundTag> entities = nbt_t.getListTag("entities").asCompoundTagList();
-				entities.forEach((entity) -> {
-					gEntity e = new gEntity();
-					ListTag<DoubleTag> pos = entity.getListTag("pos").asDoubleTagList();
-					e.setX(pos.get(0).asDouble());
-					e.setY(pos.get(1).asDouble());
-					e.setZ(pos.get(2).asDouble());
-					ListTag<IntTag> blockPos = entity.getListTag("blockPos").asIntTagList();
-					e.setBlockX(blockPos.get(0).asInt());
-					e.setBlockY(blockPos.get(1).asInt());
-					e.setBlockZ(blockPos.get(2).asInt());
-					
-					e.setEntityData(readEntity(entity.getCompoundTag("nbt")));
-					this.entities.add(e);
-				});
-				
-				ListTag<CompoundTag> palette = nbt_t.getListTag("palette").asCompoundTagList();
-				for (int i = 0; i < palette.size(); i++) {
-					CompoundTag pal = palette.get(i);
-					gPalette p = new gPalette();
-					
-					p.setName(pal.getString("Name"));
-					
+				if (pal.containsKey("Properties")) {
 					CompoundTag Properties = pal.getCompoundTag("Properties");
 					
-					Properties.forEach((Property) -> {
-						p.setProperty(Property.getKey(), Property.getValue().toString());
+					Set<Entry<String, Tag<?>>> props = Properties.entrySet();
+					props.forEach((prop) -> {
+						p.setProperty(prop.getKey(), ((StringTag)prop.getValue()).getValue());
 					});
-					this.palette.add(p);
 				}
-				
-				ListTag<IntTag> size = nbt_t.getListTag("size").asIntTagList();
-				this.width = size.get(0).asInt();
-				this.height = size.get(1).asInt();
-				this.depth = size.get(2).asInt();
-			}
-		} catch (Exception e) {
+				this.palette.add(p);
+			});
+			plugin.getLogger().info("Loaded " + this.palette.size() + " palettes");
 			
+			ListTag<IntTag> size = nbt_t.getListTag("size").asIntTagList();
+			this.width = size.get(0).asInt();
+			this.height = size.get(1).asInt();
+			this.depth = size.get(2).asInt();
+		} else {
+			plugin.getLogger().warning("File " + file.getName() + " does not exist!");
 		}
 	}
 	
