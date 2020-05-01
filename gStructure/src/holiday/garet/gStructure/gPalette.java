@@ -1,8 +1,8 @@
-package holiday.garet.gStructure;
+package holiday.garet.GStructure;
 
 import java.util.HashMap;
 
-public class gPalette {
+public class GPalette {
 	
 	// format from https://minecraft.gamepedia.com/Structure_block_file_format
 	
@@ -10,7 +10,7 @@ public class gPalette {
 	
 	HashMap<String, String> properties;
 	
-	public gPalette() {
+	public GPalette() {
 		properties = new HashMap<String, String>();
 	}
 	

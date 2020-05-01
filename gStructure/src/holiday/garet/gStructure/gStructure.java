@@ -1,4 +1,4 @@
-package holiday.garet.gStructure;
+package holiday.garet.GStructure;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,17 +26,17 @@ import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.StringTag;
 import net.querz.nbt.tag.Tag;
 
-public class gStructure {
+public class GStructure {
 	
 	// format from https://minecraft.gamepedia.com/Structure_block_file_format
 	
 	private int dataVersion;
 	
-	private List<gBlock> blocks;
+	private List<GBlock> blocks;
 	
-	private List<gEntity> entities;
+	private List<GEntity> entities;
 	
-	private List<gPalette> palette;
+	private List<GPalette> palette;
 	
 	private int width;
 	private int height;
@@ -44,10 +44,10 @@ public class gStructure {
 	
 	Plugin plugin;
 	
-	public gStructure(Plugin plugin) {
-		blocks = new ArrayList<gBlock>();
-		entities = new ArrayList<gEntity>();
-		palette = new ArrayList<gPalette>();
+	public GStructure(Plugin plugin) {
+		blocks = new ArrayList<GBlock>();
+		entities = new ArrayList<GEntity>();
+		palette = new ArrayList<GPalette>();
 		this.plugin = plugin;
 	}
 	
@@ -73,16 +73,15 @@ public class gStructure {
 			try {
 				nbt = NBTUtil.read(file);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			CompoundTag nbt_t = (CompoundTag) nbt.getTag(); // TODO make sure works
+			CompoundTag nbt_t = (CompoundTag) nbt.getTag();
 			
 			this.dataVersion = nbt_t.getInt("DataVersion"); // DataVersion
 			
 			ListTag<CompoundTag> blocks = nbt_t.getListTag("blocks").asCompoundTagList(); // blocks
 			blocks.forEach((block) -> {
-				gBlock b = new gBlock();
+				GBlock b = new GBlock();
 				ListTag<IntTag> pos = block.getListTag("pos").asIntTagList();
 				b.setX(pos.get(0).asInt()); // x
 				b.setY(pos.get(1).asInt()); // y
@@ -95,7 +94,7 @@ public class gStructure {
 			
 			ListTag<CompoundTag> entities = nbt_t.getListTag("entities").asCompoundTagList();
 			entities.forEach((entity) -> {
-				gEntity e = new gEntity();
+				GEntity e = new GEntity();
 				ListTag<DoubleTag> pos = entity.getListTag("pos").asDoubleTagList();
 				e.setX(pos.get(0).asDouble());
 				e.setY(pos.get(1).asDouble());
@@ -107,12 +106,13 @@ public class gStructure {
 				
 				e.setEntityData(readEntity(entity.getCompoundTag("nbt")));
 				this.entities.add(e);
+				// TODO specific entity data
 			});
 			plugin.getLogger().info("Loaded " + this.entities.size() + " entities");
 			
 			ListTag<CompoundTag> palette = nbt_t.getListTag("palette").asCompoundTagList();
 			palette.forEach((pal) -> {
-				gPalette p = new gPalette();
+				GPalette p = new GPalette();
 				
 				p.setName(pal.getString("Name"));
 				
@@ -137,8 +137,8 @@ public class gStructure {
 		}
 	}
 	
-	private gEntityData readEntity(CompoundTag reader) {
-		gEntityData e = new gEntityData();
+	private GEntityData readEntity(CompoundTag reader) {
+		GEntityData e = new GEntityData();
 		
 		e.setId(reader.getString("id"));
 		
@@ -179,7 +179,7 @@ public class gStructure {
 		
 		e.setSilent(reader.getByte("Silent"));
 		
-		List<gEntityData> passengers = new ArrayList<gEntityData>();
+		List<GEntityData> passengers = new ArrayList<GEntityData>();
 		ListTag<CompoundTag> Passengers = reader.getListTag("Passengers").asCompoundTagList();
 		Passengers.forEach((Passenger) -> {
 			passengers.add(readEntity(Passenger));
@@ -201,29 +201,29 @@ public class gStructure {
 	public void generate(Location location) {
 		// generate blocks
 		for (int i = 0; i < blocks.size(); i++) {
-			gBlock block = blocks.get(i);
+			GBlock block = blocks.get(i);
 			Location blockLocation = location.clone().add(new Vector(block.getX(), block.getY(), block.getZ()));
 			paint(blockLocation, palette.get(block.getState()));
 		}
 		// add entities
 		for (int i = 0; i < entities.size(); i++) {
-			gEntity entity = entities.get(i);
+			GEntity entity = entities.get(i);
 			Location entityLocation = location.clone().add(new Vector(entity.getX(), entity.getY(), entity.getZ()));
 			summonEntity(entityLocation, entity.getEntityData());
 		}
 	}
 	
-	private void paint(Location location, gPalette palette) {
+	private void paint(Location location, GPalette palette) {
 		World world = location.getWorld();
 		Block block = world.getBlockAt(location);
 		String material = palette.getName().split(":")[1];
 		block.setType(Material.matchMaterial(material));
 		palette.getProperties().forEach((name, value) -> {
-			block.setMetadata(name, new gMetaDataValue(value, plugin));
+			block.setMetadata(name, new GMetaDataValue(value, plugin));
 		});
 	}
 	
-	private Entity summonEntity(Location location, gEntityData entityData) {
+	private Entity summonEntity(Location location, GEntityData entityData) {
 		EntityType entityType = EntityType.valueOf(entityData.getId());
 		Entity entity = location.getWorld().spawnEntity(location, entityType);
 		entity.setVelocity(new Vector(entityData.getDX(), entityData.getDY(), entityData.getDZ()));
@@ -236,7 +236,7 @@ public class gStructure {
 		entity.setCustomNameVisible(entityData.getCustomNameVisibleAsBoolean());
 		entity.setSilent(entityData.getSilentAsBoolean());
 		entity.setGlowing(entityData.getGlowingAsBoolean());
-		List<gEntityData> passengers = entityData.getPassengers();
+		List<GEntityData> passengers = entityData.getPassengers();
 		for (int i = 0; i < passengers.size(); i++) {
 			entity.addPassenger(summonEntity(location, passengers.get(i)));
 		}

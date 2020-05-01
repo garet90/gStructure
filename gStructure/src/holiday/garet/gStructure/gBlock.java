@@ -1,6 +1,6 @@
-package holiday.garet.gStructure;
+package holiday.garet.GStructure;
 
-public class gBlock {
+public class GBlock {
 	
 	// format from https://minecraft.gamepedia.com/Structure_block_file_format
 	
@@ -9,14 +9,14 @@ public class gBlock {
 	private int z;
 	private int state;
 	
-	public gBlock(int x, int y, int z, int state) {
+	public GBlock(int x, int y, int z, int state) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.state = state;
 	}
 	
-	public gBlock() {
+	public GBlock() {
 		this.x = 0;
 		this.y = 0;
 		this.z = 0;

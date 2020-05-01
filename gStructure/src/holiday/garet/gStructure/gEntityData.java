@@ -1,8 +1,8 @@
-package holiday.garet.gStructure;
+package holiday.garet.GStructure;
 
 import java.util.List;
 
-public class gEntityData {
+public class GEntityData {
 	
 	// format from https://minecraft.gamepedia.com/Chunk_format#Entity_format
 	
@@ -35,7 +35,7 @@ public class gEntityData {
 	private byte customNameVisible;
 	private byte silent;
 	
-	private List<gEntityData> passengers;
+	private List<GEntityData> passengers;
 	
 	private byte glowing;
 	
@@ -125,7 +125,7 @@ public class gEntityData {
 		this.silent = silent;
 	}
 	
-	public void setPassengers(List<gEntityData> passengers) {
+	public void setPassengers(List<GEntityData> passengers) {
 		this.passengers = passengers;
 	}
 	
@@ -242,7 +242,7 @@ public class gEntityData {
 		return false;
 	}
 	
-	public List<gEntityData> getPassengers() {
+	public List<GEntityData> getPassengers() {
 		return passengers;
 	}
 	

@@ -1,14 +1,14 @@
-package holiday.garet.gStructure;
+package holiday.garet.GStructure;
 
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
-public class gMetaDataValue implements MetadataValue {
+public class GMetaDataValue implements MetadataValue {
 
 	String value;
 	Plugin plugin;
 	
-	public gMetaDataValue(String value, Plugin plugin) {
+	public GMetaDataValue(String value, Plugin plugin) {
 		this.value = value;
 		this.plugin = plugin;
 	}

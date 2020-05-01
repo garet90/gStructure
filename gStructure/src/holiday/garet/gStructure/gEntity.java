@@ -1,6 +1,6 @@
-package holiday.garet.gStructure;
+package holiday.garet.GStructure;
 
-public class gEntity {
+public class GEntity {
 	
 	// format from https://minecraft.gamepedia.com/Structure_block_file_format
 	
@@ -12,7 +12,7 @@ public class gEntity {
 	private int blockY;
 	private int blockZ;
 
-	private gEntityData entityData;
+	private GEntityData entityData;
 	
 	public void setX(double x) {
 		this.x = x;
@@ -38,7 +38,7 @@ public class gEntity {
 		this.blockZ = blockZ;
 	}
 	
-	public void setEntityData(gEntityData entityData) {
+	public void setEntityData(GEntityData entityData) {
 		this.entityData = entityData;
 	}
 	
@@ -66,7 +66,7 @@ public class gEntity {
 		return blockZ;
 	}
 	
-	public gEntityData getEntityData() {
+	public GEntityData getEntityData() {
 		return entityData;
 	}
 }
