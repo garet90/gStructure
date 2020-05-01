@@ -2,6 +2,12 @@ package holiday.garet.GStructure;
 
 import java.util.List;
 
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.DoubleTag;
+import net.querz.nbt.tag.FloatTag;
+import net.querz.nbt.tag.ListTag;
+import net.querz.nbt.tag.StringTag;
+
 public class GEntityData {
 	
 	// format from https://minecraft.gamepedia.com/Chunk_format#Entity_format
@@ -259,5 +265,64 @@ public class GEntityData {
 	
 	public List<String> getTags() {
 		return tags;
+	}
+	
+	public void read(CompoundTag tag) {
+		this.id = tag.getString("id");
+		
+		ListTag<DoubleTag> pos = tag.getListTag("Pos").asDoubleTagList();
+		this.x = pos.get(0).asDouble();
+		this.y = pos.get(1).asDouble();
+		this.z = pos.get(2).asDouble();
+
+		ListTag<DoubleTag> motion = tag.getListTag("Motion").asDoubleTagList();
+		this.dX = motion.get(0).asDouble();
+		this.dY = motion.get(1).asDouble();
+		this.dZ = motion.get(2).asDouble();
+		
+		ListTag<FloatTag> rotation = tag.getListTag("Rotation").asFloatTagList();
+		this.yaw = rotation.get(0).asFloat();
+		this.pitch = rotation.get(1).asFloat();
+		
+		this.fallDistance = tag.getFloat("FallDistance");
+		
+		this.fire = tag.getShort("Fire");
+		
+		this.air = tag.getShort("Air");
+		
+		this.onGround = tag.getByte("OnGround");
+		
+		this.dimension = tag.getInt("Dimension");
+		
+		this.invulnerable = tag.getByte("Invulnerable");
+		
+		this.portalCooldown = tag.getInt("PortalCooldown");
+		
+		this.UUIDMost = tag.getLong("UUIDMost");
+		this.UUIDLeast = tag.getLong("UUIDLeast");
+		
+		this.customName = tag.getString("CustomName");
+		
+		this.customNameVisible = tag.getByte("CustomNameVisible");
+		
+		this.silent = tag.getByte("Silent");
+		
+		ListTag<CompoundTag> Passengers = tag.getListTag("Passengers").asCompoundTagList();
+		Passengers.forEach((Passenger) -> {
+			this.passengers.add(GEntityData.readNewEntity(Passenger));
+		});
+		
+		this.glowing = tag.getByte("Glowing");
+
+		ListTag<StringTag> Tags = tag.getListTag("Tags").asStringTagList();
+		Tags.forEach((TagE) -> {
+			tags.add(TagE.getValue());
+		});
+	}
+	
+	public static GEntityData readNewEntity(CompoundTag tag) {
+		GEntityData e = new GEntityData();
+		e.read(tag);
+		return e;
 	}
 }

@@ -19,5 +19,6 @@ public class ItemDataTag {
 	 * 13: PotionEffectTag
 	 * 14: SuspiciousStewTag
 	 * 15: WrittenBookTag
+	 * 16: FireworkStarTag
 	 */
 }

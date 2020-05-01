@@ -38,6 +38,7 @@ public class BlockEntityTag {
 	}
 	
 	public static BlockEntityTag getBlockEntityType(CompoundTag tag) {
-		return new BedTag();
+		return null;
+		// TODO
 	}
 }

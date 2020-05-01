@@ -1,5 +1,10 @@
 package holiday.garet.GStructure;
 
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.DoubleTag;
+import net.querz.nbt.tag.IntTag;
+import net.querz.nbt.tag.ListTag;
+
 public class GEntity {
 	
 	// format from https://minecraft.gamepedia.com/Structure_block_file_format
@@ -68,5 +73,24 @@ public class GEntity {
 	
 	public GEntityData getEntityData() {
 		return entityData;
+	}
+	
+	public void read(CompoundTag tag) {
+		ListTag<DoubleTag> pos = tag.getListTag("pos").asDoubleTagList();
+		this.x = pos.get(0).asDouble();
+		this.y = pos.get(1).asDouble();
+		this.z = pos.get(2).asDouble();
+		ListTag<IntTag> blockPos = tag.getListTag("blockPos").asIntTagList();
+		this.blockX = blockPos.get(0).asInt();
+		this.blockY = blockPos.get(1).asInt();
+		this.blockZ = blockPos.get(2).asInt();
+		
+		this.entityData = GEntityData.readNewEntity(tag.getCompoundTag("nbt"));
+	}
+	
+	public static GEntity readNewEntity(CompoundTag tag) {
+		GEntity e = new GEntity();
+		e.read(tag);
+		return e;
 	}
 }

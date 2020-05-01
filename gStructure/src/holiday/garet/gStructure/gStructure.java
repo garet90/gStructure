@@ -94,18 +94,7 @@ public class GStructure {
 			
 			ListTag<CompoundTag> entities = nbt_t.getListTag("entities").asCompoundTagList();
 			entities.forEach((entity) -> {
-				GEntity e = new GEntity();
-				ListTag<DoubleTag> pos = entity.getListTag("pos").asDoubleTagList();
-				e.setX(pos.get(0).asDouble());
-				e.setY(pos.get(1).asDouble());
-				e.setZ(pos.get(2).asDouble());
-				ListTag<IntTag> blockPos = entity.getListTag("blockPos").asIntTagList();
-				e.setBlockX(blockPos.get(0).asInt());
-				e.setBlockY(blockPos.get(1).asInt());
-				e.setBlockZ(blockPos.get(2).asInt());
-				
-				e.setEntityData(readEntity(entity.getCompoundTag("nbt")));
-				this.entities.add(e);
+				this.entities.add(GEntity.readNewEntity(entity));
 				// TODO specific entity data
 			});
 			plugin.getLogger().info("Loaded " + this.entities.size() + " entities");
@@ -137,7 +126,8 @@ public class GStructure {
 		}
 	}
 	
-	private GEntityData readEntity(CompoundTag reader) {
+	@Deprecated
+	public GEntityData readEntity(CompoundTag reader) {
 		GEntityData e = new GEntityData();
 		
 		e.setId(reader.getString("id"));

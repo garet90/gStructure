@@ -1,13 +1,15 @@
 package holiday.garet.GStructure.ItemTag;
 
-import java.util.List;
-
-import holiday.garet.GStructure.GTexture;
+import net.querz.nbt.tag.CompoundTag;
 
 public class PlayerHeadTag extends ItemDataTag {
-	private String SkullOwner;
+	private String skullOwner;
 	
-	private String id;
-	private String name;
-	private List<GTexture> textures;
+	public String getSkullOwner() {
+		return skullOwner;
+	}
+	
+	public void read(CompoundTag tag) {
+		this.skullOwner = tag.getString("SkullOwner");
+	}
 }

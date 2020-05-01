@@ -4,11 +4,22 @@ import java.util.List;
 
 import holiday.garet.GStructure.ItemTag.AttributeModifiersTag;
 import holiday.garet.GStructure.ItemTag.BlockTag;
+import holiday.garet.GStructure.ItemTag.BookAndQuillTag;
+import holiday.garet.GStructure.ItemTag.BucketOfFishTag;
 import holiday.garet.GStructure.ItemTag.CrossbowsTag;
+import holiday.garet.GStructure.ItemTag.DebugStickTag;
+import holiday.garet.GStructure.ItemTag.DisplayPropertiesTag;
 import holiday.garet.GStructure.ItemTag.EnchantmentTag;
+import holiday.garet.GStructure.ItemTag.EntityTag;
+import holiday.garet.GStructure.ItemTag.FireworkStarTag;
+import holiday.garet.GStructure.ItemTag.FireworkTag;
 import holiday.garet.GStructure.ItemTag.GeneralTag;
 import holiday.garet.GStructure.ItemTag.ItemDataTag;
+import holiday.garet.GStructure.ItemTag.MapTag;
+import holiday.garet.GStructure.ItemTag.PlayerHeadTag;
 import holiday.garet.GStructure.ItemTag.PotionEffectsTag;
+import holiday.garet.GStructure.ItemTag.SuspiciousStewTag;
+import holiday.garet.GStructure.ItemTag.WrittenBookTag;
 import net.querz.nbt.tag.CompoundTag;
 
 public class GItem {
@@ -49,6 +60,63 @@ public class GItem {
 		}
 		if (dataTag.containsKey("Charged")) {
 			CrossbowsTag t = new CrossbowsTag();
+			t.read(dataTag);
+			tags.add(t);
+		}
+		if (dataTag.containsKey("display")) {
+			DisplayPropertiesTag t = new DisplayPropertiesTag();
+			t.read(dataTag);
+			tags.add(t);
+		}
+		if (dataTag.containsKey("pages")) {
+			if (dataTag.containsKey("title")) {
+				WrittenBookTag t = new WrittenBookTag();
+				t.read(dataTag);
+				tags.add(t);
+			} else {
+				BookAndQuillTag t = new BookAndQuillTag();
+				t.read(dataTag);
+				tags.add(t);
+			}
+		}
+		if (dataTag.containsKey("SkullOwner")) {
+			PlayerHeadTag t = new PlayerHeadTag();
+			t.read(dataTag);
+			tags.add(t);
+		}
+		if (dataTag.containsKey("Fireworks")) {
+			FireworkTag t = new FireworkTag();
+			t.read(dataTag);
+			tags.add(t);
+		}
+		if (dataTag.containsKey("Explosion")) {
+			FireworkStarTag t = new FireworkStarTag();
+			t.read(dataTag);
+			tags.add(t);
+		}
+		if (dataTag.containsKey("EntityTag")) {
+			if (dataTag.containsKey("BucketVariantTag")) {
+				BucketOfFishTag t = new BucketOfFishTag();
+				t.read(dataTag);
+				tags.add(t);
+			} else {
+				EntityTag t = new EntityTag();
+				t.read(dataTag);
+				tags.add(t);
+			}
+		}
+		if (dataTag.containsKey("map")) {
+			MapTag t = new MapTag();
+			t.read(dataTag);
+			tags.add(t);
+		}
+		if (dataTag.containsKey("Effects")) {
+			SuspiciousStewTag t = new SuspiciousStewTag();
+			t.read(dataTag);
+			tags.add(t);
+		}
+		if (dataTag.containsKey("DebugProperty")) {
+			DebugStickTag t = new DebugStickTag();
 			t.read(dataTag);
 			tags.add(t);
 		}
