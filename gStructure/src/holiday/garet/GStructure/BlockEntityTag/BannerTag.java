@@ -24,6 +24,7 @@ public class BannerTag extends BlockEntityTag {
 	}
 	
 	public void read(CompoundTag tag) {
+		super.read(tag);
 		customName = tag.getString("CustomName");
 		
 		ListTag<CompoundTag> patterns = tag.getListTag("Patterns").asCompoundTagList();

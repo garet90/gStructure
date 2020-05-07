@@ -37,10 +37,19 @@ public class GeneralTag extends ItemDataTag {
 	public void read(CompoundTag tag) {
 		this.damage = tag.getInt("Damage");
 		this.unbreakable = tag.getByte("Unbreakable");
-		ListTag<StringTag> canDestroy = tag.getListTag("CanDestroy").asStringTagList();
-		canDestroy.forEach((cd) -> {
-			this.canDestroy.add(cd.getValue());
-		});
+		if (tag.containsKey("CanDestroy")) {
+			ListTag<StringTag> canDestroy = tag.getListTag("CanDestroy").asStringTagList();
+			canDestroy.forEach((cd) -> {
+				this.canDestroy.add(cd.getValue());
+			});
+		}
 		this.customModelData = tag.getInt("CustomModelData");
+	}
+
+	public boolean getUnbreakableAsBoolean() {
+		if (unbreakable == 1) {
+			return true;
+		}
+		return false;
 	}
 }

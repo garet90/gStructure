@@ -1,5 +1,10 @@
 package holiday.garet.GStructure;
 
+import holiday.garet.GStructure.BlockEntityTag.BlockEntityTag;
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.IntTag;
+import net.querz.nbt.tag.ListTag;
+
 public class GBlock {
 	
 	// format from https://minecraft.gamepedia.com/Structure_block_file_format
@@ -8,6 +13,7 @@ public class GBlock {
 	private int y;
 	private int z;
 	private int state;
+	private BlockEntityTag nbt;
 	
 	public GBlock(int x, int y, int z, int state) {
 		this.x = x;
@@ -23,6 +29,22 @@ public class GBlock {
 		this.state = 0;
 	}
 	
+	public void read(CompoundTag tag) {
+		this.state = tag.getInt("state");
+		
+		ListTag<IntTag> pos = tag.getListTag("pos").asIntTagList();
+		this.x = pos.get(0).asInt();
+		this.y = pos.get(1).asInt();
+		this.z = pos.get(2).asInt();
+		
+		if (tag.containsKey("nbt")) {
+			nbt = BlockEntityTag.readNewEntity(tag.getCompoundTag("nbt"), null);
+		}
+	}
+	
+	public BlockEntityTag getNBT() {
+		return nbt;
+	}
 	public int getX() {
 		return x;
 	}
@@ -53,5 +75,11 @@ public class GBlock {
 	
 	public void setState(int state) {
 		this.state = state;
+	}
+
+	public static GBlock readNewBlock(CompoundTag tag) {
+		GBlock b = new GBlock();
+		b.read(tag);
+		return b;
 	}
 }

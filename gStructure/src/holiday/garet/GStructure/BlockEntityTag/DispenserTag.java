@@ -39,6 +39,7 @@ public class DispenserTag extends BlockEntityTag {
 	}
 	
 	public void read(CompoundTag tag) {
+		super.read(tag);
 		customName = tag.getString("CompoundTag");
 		lock = tag.getString("Lock");
 		

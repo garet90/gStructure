@@ -11,11 +11,38 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
+import holiday.garet.GStructure.BlockEntityTag.BannerTag;
+import holiday.garet.GStructure.BlockEntityTag.BeaconTag;
+import holiday.garet.GStructure.BlockEntityTag.BeehiveTag;
+import holiday.garet.GStructure.BlockEntityTag.BlockEntityTag;
+import holiday.garet.GStructure.BlockEntityTag.BrewingStandTag;
+import holiday.garet.GStructure.BlockEntityTag.CampfireTag;
+import holiday.garet.GStructure.BlockEntityTag.CauldronTag;
+import holiday.garet.GStructure.BlockEntityTag.ChestTag;
+import holiday.garet.GStructure.BlockEntityTag.CommandBlockTag;
+import holiday.garet.GStructure.BlockEntityTag.ComparatorTag;
+import holiday.garet.GStructure.BlockEntityTag.ConduitTag;
+import holiday.garet.GStructure.BlockEntityTag.DispenserTag;
+import holiday.garet.GStructure.BlockEntityTag.EnchantingTableTag;
+import holiday.garet.GStructure.BlockEntityTag.EndGatewayTag;
+import holiday.garet.GStructure.BlockEntityTag.FurnaceTag;
+import holiday.garet.GStructure.BlockEntityTag.HopperTag;
+import holiday.garet.GStructure.BlockEntityTag.JigsawTag;
+import holiday.garet.GStructure.BlockEntityTag.JukeboxTag;
+import holiday.garet.GStructure.BlockEntityTag.LecternTag;
+import holiday.garet.GStructure.BlockEntityTag.MobSpawnerTag;
+import holiday.garet.GStructure.BlockEntityTag.PistonTag;
+import holiday.garet.GStructure.BlockEntityTag.SignTag;
+import holiday.garet.GStructure.BlockEntityTag.StructureBlockTag;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
@@ -81,14 +108,7 @@ public class GStructure {
 			
 			ListTag<CompoundTag> blocks = nbt_t.getListTag("blocks").asCompoundTagList(); // blocks
 			blocks.forEach((block) -> {
-				GBlock b = new GBlock();
-				ListTag<IntTag> pos = block.getListTag("pos").asIntTagList();
-				b.setX(pos.get(0).asInt()); // x
-				b.setY(pos.get(1).asInt()); // y
-				b.setZ(pos.get(2).asInt()); // z
-				b.setState(block.getInt("state")); // state
-				this.blocks.add(b);
-				// TODO add nbt
+				this.blocks.add(GBlock.readNewBlock(block));
 			});
 			plugin.getLogger().info("Loaded " + this.blocks.size() + " blocks");
 			
@@ -126,6 +146,7 @@ public class GStructure {
 		}
 	}
 	
+	// Use GEntityData.readNewEntity instead
 	@Deprecated
 	public GEntityData readEntity(CompoundTag reader) {
 		GEntityData e = new GEntityData();
@@ -193,7 +214,7 @@ public class GStructure {
 		for (int i = 0; i < blocks.size(); i++) {
 			GBlock block = blocks.get(i);
 			Location blockLocation = location.clone().add(new Vector(block.getX(), block.getY(), block.getZ()));
-			paint(blockLocation, palette.get(block.getState()));
+			paint(blockLocation, palette.get(block.getState()), block.getNBT());
 		}
 		// add entities
 		for (int i = 0; i < entities.size(); i++) {
@@ -203,14 +224,118 @@ public class GStructure {
 		}
 	}
 	
-	private void paint(Location location, GPalette palette) {
+	private void paint(Location location, GPalette palette, BlockEntityTag nbt) {
 		World world = location.getWorld();
 		Block block = world.getBlockAt(location);
 		String material = palette.getName().split(":")[1];
 		block.setType(Material.matchMaterial(material));
+		if (nbt != null) {
+			switch (nbt.getId()) {
+			case "banner":
+				nbt = (BannerTag) nbt;
+				break;
+			case "chest":
+			case "minecraft:chest":
+			case "shulker_box":
+			case "minecraft:shulker_box":
+			case "barrel":
+			case "minecraft:barrel":
+				ChestTag n = (ChestTag) nbt;
+				Chest c = (Chest)block.getState();
+				c.setCustomName(n.getCustomName());
+				c.setLock(n.getLock());
+				/*if (n.getLootTable() != null && LootTables.valueOf(n.getLootTable()) != null) {
+					c.setLootTable(LootTables.valueOf(n.getLootTable()).getLootTable());
+				}
+				TODO loot tables are beign wack.
+				*/
+				// TODO loottableseed
+				n.getItems().forEach((citem) -> {
+					c.getInventory().setItem(citem.getSlot(), citem.get(plugin));
+				});
+				break;
+			case "beacon":
+				nbt = (BeaconTag) nbt;
+				break;
+			case "beehive":
+				nbt = (BeehiveTag) nbt;
+				break;
+			case "blast_furnace":
+			case "furnace":
+			case "smoker":
+				nbt = (FurnaceTag) nbt;
+				break;
+			case "brewing_stand":
+				nbt = (BrewingStandTag) nbt;
+				break;
+			case "campfire": 
+				nbt = (CampfireTag) nbt;
+				break;
+			case "cauldron":
+				nbt = (CauldronTag) nbt;
+				break;
+			case "comparator":
+				nbt = (ComparatorTag) nbt;
+				break;
+			case "command_block":
+				nbt = (CommandBlockTag) nbt;
+				break;
+			case "conduit":
+				nbt = (ConduitTag) nbt;
+				break;
+			case "dispenser":
+			case "dropper":
+				nbt = (DispenserTag) nbt;
+				break;
+			case "enchanting_table":
+				nbt = (EnchantingTableTag) nbt;
+				break;
+			case "end_gateway":
+				nbt = (EndGatewayTag) nbt;
+				break;
+			case "hopper":
+				nbt = (HopperTag) nbt;
+				break;
+			case "jigsaw":
+				nbt = (JigsawTag) nbt;
+				break;
+			case "jukebox":
+				nbt = (JukeboxTag) nbt;
+				break;
+			case "lectern":
+				nbt = (LecternTag) nbt;
+				break;
+			case "mob_spawner":
+				nbt = (MobSpawnerTag) nbt;
+				break;
+			case "piston":
+				nbt = (PistonTag) nbt;
+				break;
+			case "sign":
+				nbt = (SignTag) nbt;
+				break;
+			// TODO skulltag
+			case "structure_block":
+				nbt = (StructureBlockTag) nbt;
+				break;
+			default:
+				break;
+			}
+		}
+		BlockData bd = block.getBlockData();
 		palette.getProperties().forEach((name, value) -> {
-			block.setMetadata(name, new GMetaDataValue(value, plugin));
+			switch(name) {
+			case "facing":
+				if (bd instanceof Directional) {
+					((Directional) bd).setFacing(BlockFace.valueOf(value.toUpperCase()));
+				} else {
+					plugin.getLogger().warning("Uh oh!");
+				}
+			default:
+				block.setMetadata(name, new GMetaDataValue(value, plugin));
+			}
 		});
+		block.setBlockData(bd);
 	}
 	
 	private Entity summonEntity(Location location, GEntityData entityData) {

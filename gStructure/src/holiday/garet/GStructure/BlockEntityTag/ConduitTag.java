@@ -15,6 +15,7 @@ public class ConduitTag extends BlockEntityTag {
 	}
 	
 	public void read(CompoundTag tag) {
+		super.read(tag);
 		CompoundTag targetUUID = tag.getCompoundTag("target_uuid");
 		l = targetUUID.getLong("L");
 		m = targetUUID.getLong("M");

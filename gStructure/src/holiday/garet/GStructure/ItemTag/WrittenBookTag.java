@@ -33,6 +33,6 @@ public class WrittenBookTag extends BookAndQuillTag {
 		this.resolved = tag.getByte("resolved");
 		this.generation = tag.getInt("generation");
 		this.author = tag.getString("author");
-		this.title = tag.getString("pages");
+		this.title = tag.getString("title");
 	}
 }

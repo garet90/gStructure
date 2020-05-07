@@ -1,5 +1,9 @@
 package holiday.garet.GStructure;
 
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+
 import net.querz.nbt.tag.CompoundTag;
 
 public class GCustomPotionEffect {
@@ -47,5 +51,31 @@ public class GCustomPotionEffect {
 		GCustomPotionEffect e = new GCustomPotionEffect();
 		e.read(tag);
 		return e;
+	}
+
+	@SuppressWarnings("deprecation")
+	public @NotNull PotionEffect get() {
+		return new PotionEffect(PotionEffectType.getById(id), duration, (int)amplifier, getAmbientAsBoolean(), getShowParticlesAsBoolean(), getShowIconAsBoolean());
+	}
+
+	private boolean getShowIconAsBoolean() {
+		if (showIcon == 1) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean getShowParticlesAsBoolean() {
+		if (showParticles == 1) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean getAmbientAsBoolean() {
+		if (ambient == 1) {
+			return true;
+		}
+		return false;
 	}
 }

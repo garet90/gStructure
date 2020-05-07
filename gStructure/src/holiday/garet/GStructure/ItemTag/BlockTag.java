@@ -35,16 +35,22 @@ public class BlockTag extends ItemDataTag {
 		return blockStateTag;
 	}
 	
-	public void read(CompoundTag tag) {
-		ListTag<StringTag> canPlaceOns = tag.getListTag("CanPlaceOn").asStringTagList();
-		canPlaceOns.forEach((canPlaceOn) -> {
-			this.canPlaceOn.add(canPlaceOn.getValue());
-		});
-		this.blockEntityTag = BlockEntityTag.getBlockEntityType(tag.getCompoundTag("BlockEntityTag"));
-		CompoundTag blockStateTags = tag.getCompoundTag("BlockStateTag");
-		Set<Entry<String, Tag<?>>> stateTags = blockStateTags.entrySet();
-		stateTags.forEach((state) -> {
-			blockStateTag.put(state.getKey(), ((StringTag)state.getValue()).getValue());
-		});
+	public void read(CompoundTag tag, String id) {
+		if (tag.containsKey("CanPlaceOn")) {
+			ListTag<StringTag> canPlaceOns = tag.getListTag("CanPlaceOn").asStringTagList();
+			canPlaceOns.forEach((canPlaceOn) -> {
+				this.canPlaceOn.add(canPlaceOn.getValue());
+			});
+		}
+		if (tag.containsKey("BlockEntityTag")) {
+			this.blockEntityTag = BlockEntityTag.readNewEntity(tag.getCompoundTag("BlockEntityTag"), id);
+		}
+		if (tag.containsKey("BlockStateTag")) {
+			CompoundTag blockStateTags = tag.getCompoundTag("BlockStateTag");
+			Set<Entry<String, Tag<?>>> stateTags = blockStateTags.entrySet();
+			stateTags.forEach((state) -> {
+				blockStateTag.put(state.getKey(), ((StringTag)state.getValue()).getValue());
+			});
+		}
 	}
 }

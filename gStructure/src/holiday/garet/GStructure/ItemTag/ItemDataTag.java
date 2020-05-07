@@ -21,4 +21,8 @@ public class ItemDataTag {
 	 * 15: WrittenBookTag
 	 * 16: FireworkStarTag
 	 */
+	
+	public int getType() {
+		return type;
+	}
 }

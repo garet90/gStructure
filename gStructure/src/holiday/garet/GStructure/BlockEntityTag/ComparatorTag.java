@@ -10,6 +10,7 @@ public class ComparatorTag extends BlockEntityTag {
 	}
 	
 	public void read(CompoundTag tag) {
+		super.read(tag);
 		outputSignal = tag.getInt("OutputSignal");
 	}
 }

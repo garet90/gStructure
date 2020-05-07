@@ -1,5 +1,6 @@
 package holiday.garet.GStructure.BlockEntityTag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import holiday.garet.GStructure.GItem;
@@ -12,6 +13,10 @@ public class ChestTag extends BlockEntityTag {
 	private List<GItem> items;
 	private String lootTable;
 	private long lootTableSeed;
+	
+	public ChestTag() {
+		items = new ArrayList<GItem>();
+	}
 	
 	public String getCustomName() {
 		return customName;

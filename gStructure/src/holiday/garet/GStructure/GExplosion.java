@@ -3,6 +3,9 @@ package holiday.garet.GStructure;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.FireworkEffect.Type;
+import org.jetbrains.annotations.NotNull;
+
 import net.querz.nbt.tag.CompoundTag;
 
 public class GExplosion {
@@ -55,5 +58,30 @@ public class GExplosion {
 		GExplosion e = new GExplosion();
 		e.read(tag);
 		return e;
+	}
+
+	public @NotNull boolean getFlickerAsBoolean() {
+		if (flicker == 1) {
+			return true;
+		}
+		return false;
+	}
+
+	public @NotNull Type getTypeAsType() {
+		switch (type) {
+		case 0: return Type.BALL;
+		case 1: return Type.BALL_LARGE;
+		case 2: return Type.STAR;
+		case 3: return Type.CREEPER;
+		case 4: return Type.BURST;
+		default: return Type.BALL;
+		}
+	}
+
+	public boolean getTrailAsBoolean() {
+		if (trail == 1) {
+			return true;
+		}
+		return false;
 	}
 }
