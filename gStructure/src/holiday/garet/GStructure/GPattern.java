@@ -1,5 +1,8 @@
 package holiday.garet.GStructure;
 
+import org.bukkit.DyeColor;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import net.querz.nbt.tag.CompoundTag;
 
 public class GPattern {
@@ -23,5 +26,9 @@ public class GPattern {
 		GPattern p = new GPattern();
 		p.read(tag);
 		return p;
+	}
+
+	public Pattern get() {
+		return new Pattern(DyeColor.values()[color], PatternType.getByIdentifier(pattern));
 	}
 }

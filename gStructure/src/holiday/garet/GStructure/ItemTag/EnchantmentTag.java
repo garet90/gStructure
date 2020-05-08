@@ -31,14 +31,18 @@ public class EnchantmentTag extends ItemDataTag {
 	}
 	
 	public void read(CompoundTag tag) {
-		ListTag<CompoundTag> enchantments = tag.getListTag("Enchantments").asCompoundTagList();
-		enchantments.forEach((enchantment) -> {
-			this.enchantments.add(GEnchantment.readNewEnchantment(enchantment));
-		});
-		ListTag<CompoundTag> storedEnchantments = tag.getListTag("StoredEnchantments").asCompoundTagList();
-		storedEnchantments.forEach((storedEnchantment) -> {
-			this.storedEnchantments.add(GEnchantment.readNewEnchantment(storedEnchantment));
-		});
+		if (tag.containsKey("Enchantments")) {
+			ListTag<CompoundTag> enchantments = tag.getListTag("Enchantments").asCompoundTagList();
+			enchantments.forEach((enchantment) -> {
+				this.enchantments.add(GEnchantment.readNewEnchantment(enchantment));
+			});
+		}
+		if (tag.containsKey("StoredEnchantments")) {
+			ListTag<CompoundTag> storedEnchantments = tag.getListTag("StoredEnchantments").asCompoundTagList();
+			storedEnchantments.forEach((storedEnchantment) -> {
+				this.storedEnchantments.add(GEnchantment.readNewEnchantment(storedEnchantment));
+			});
+		}
 		this.repairCost = tag.getInt("RepairCost");
 	}
 }

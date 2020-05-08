@@ -1,5 +1,7 @@
 package holiday.garet.GStructure;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import net.querz.nbt.tag.CompoundTag;
 
 public class GEnchantment {
@@ -23,5 +25,9 @@ public class GEnchantment {
 		GEnchantment e = new GEnchantment();
 		e.read(tag);
 		return e;
+	}
+
+	public Enchantment get() {
+		return Enchantment.getByKey(NamespacedKey.minecraft(id.replaceFirst("minecraft:", "")));
 	}
 }

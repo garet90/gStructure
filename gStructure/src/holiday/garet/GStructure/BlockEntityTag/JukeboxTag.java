@@ -13,6 +13,8 @@ public class JukeboxTag extends BlockEntityTag {
 	public void read(CompoundTag tag) {
 		super.read(tag);
 		
-		recordItem = GItem.readNewItem(tag.getCompoundTag("RecordItem"));
+		if (tag.containsKey("RecordItem")) {
+			recordItem = GItem.readNewItem(tag.getCompoundTag("RecordItem"));
+		}
 	}
 }

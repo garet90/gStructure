@@ -1,5 +1,6 @@
 package holiday.garet.GStructure.ItemTag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import holiday.garet.GStructure.GEffect;
@@ -11,6 +12,7 @@ public class SuspiciousStewTag extends ItemDataTag {
 	
 	public SuspiciousStewTag() {
 		type = 14;
+		effects = new ArrayList<GEffect>();
 	}
 	
 	public List<GEffect> getEffects() {
@@ -18,9 +20,11 @@ public class SuspiciousStewTag extends ItemDataTag {
 	}
 	
 	public void read(CompoundTag tag) {
-		ListTag<CompoundTag> effects = tag.getListTag("Effects").asCompoundTagList();
-		effects.forEach((effect) -> {
-			this.effects.add(GEffect.readNewEffect(effect));
-		});
+		if (tag.containsKey("Effects")) {
+			ListTag<CompoundTag> effects = tag.getListTag("Effects").asCompoundTagList();
+			effects.forEach((effect) -> {
+				this.effects.add(GEffect.readNewEffect(effect));
+			});
+		}
 	}
 }

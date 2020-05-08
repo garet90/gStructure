@@ -1,5 +1,6 @@
 package holiday.garet.GStructure.ItemTag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import holiday.garet.GStructure.GExplosion;
@@ -12,6 +13,7 @@ public class FireworkTag extends ItemDataTag {
 	
 	public FireworkTag() {
 		type = 9;
+		explosions = new ArrayList<GExplosion>();
 	}
 	
 	public byte getFlight() {

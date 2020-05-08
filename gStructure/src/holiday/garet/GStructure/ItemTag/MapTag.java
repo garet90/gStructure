@@ -1,5 +1,6 @@
 package holiday.garet.GStructure.ItemTag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import holiday.garet.GStructure.GDecoration;
@@ -14,6 +15,7 @@ public class MapTag extends ItemDataTag {
 	
 	public MapTag() {
 		type = 11;
+		decorations = new ArrayList<GDecoration>();
 	}
 	
 	public int getMap() {
@@ -35,10 +37,14 @@ public class MapTag extends ItemDataTag {
 	public void read(CompoundTag tag) {
 		map = tag.getInt("map");
 		map_scale_direction = tag.getInt("map_scale_direction");
-		ListTag<CompoundTag> decorations = tag.getListTag("Decorations").asCompoundTagList();
-		decorations.forEach((decoration) -> {
-			this.decorations.add(GDecoration.readNewDecoration(decoration));
-		});
-		this.mapColor = tag.getCompoundTag("display").getInt("MapColor");
+		if (tag.containsKey("Decorations")) {
+			ListTag<CompoundTag> decorations = tag.getListTag("Decorations").asCompoundTagList();
+			decorations.forEach((decoration) -> {
+				this.decorations.add(GDecoration.readNewDecoration(decoration));
+			});
+		}
+		if (tag.containsKey("display")) {
+			this.mapColor = tag.getCompoundTag("display").getInt("MapColor");
+		}
 	}
 }

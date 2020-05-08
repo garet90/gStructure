@@ -11,13 +11,14 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -26,8 +27,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionType;
+import org.json.JSONObject;
+
 import holiday.garet.GStructure.BlockEntityTag.ChestTag;
 import holiday.garet.GStructure.BlockEntityTag.BlockEntityTag;
 import holiday.garet.GStructure.ItemTag.AttributeModifiersTag;
@@ -76,7 +77,7 @@ public class GItem {
 				t.read(dataTag, id);
 				tags.add(t);
 			}
-			if (dataTag.containsKey("Enchantments")) {
+			if (dataTag.containsKey("Enchantments") || dataTag.containsKey("StoredEnchantments")) {
 				EnchantmentTag t = new EnchantmentTag();
 				t.read(dataTag);
 				tags.add(t);
@@ -181,8 +182,9 @@ public class GItem {
 	@SuppressWarnings("deprecation")
 	public ItemStack get(Plugin plugin) {
 		ItemStack i = new ItemStack(Material.matchMaterial(id), count);
-		org.bukkit.inventory.meta.ItemMeta im = i.getItemMeta();
 		this.tags.forEach((tag) -> {
+			org.bukkit.inventory.meta.ItemMeta im = i.getItemMeta();
+			boolean setItemMeta = true;
 			switch(tag.getType()) {
 			case 0:
 				if (true) {
@@ -222,6 +224,7 @@ public class GItem {
 					}
 					bsm.setBlockState(bs);
 					i.setItemMeta((ItemMeta) bsm);
+					setItemMeta = false;
 				}
 				break;
 			case 2:
@@ -245,9 +248,13 @@ public class GItem {
 			case 6:
 				if (true) {
 					DisplayPropertiesTag t = (DisplayPropertiesTag) tag;
-					LeatherArmorMeta lam = (LeatherArmorMeta) im;
-					lam.setColor(Color.fromRGB(t.getColor()));
-					im.setDisplayName(t.getName());
+					if (im instanceof LeatherArmorMeta) {
+						LeatherArmorMeta lam = (LeatherArmorMeta) im;
+						lam.setColor(Color.fromRGB(t.getColor()));
+					}
+					if (t.getName() != null && t.getName() != "") {
+						im.setDisplayName(new JSONObject(t.getName()).getString("text"));
+					}
 					im.setLore(t.getLore());
 					// TODO hideflags
 				}
@@ -255,12 +262,16 @@ public class GItem {
 			case 7:
 				if (true) {
 					EnchantmentTag t = (EnchantmentTag) tag;
-					t.getEnchantments().forEach((enchantment) -> {
-						im.addEnchant(Enchantment.getByName(enchantment.getId()), enchantment.getLvl(), true);
-					});
-					t.getStoredEnchantments().forEach((storedEnchantment) -> {
-						im.addEnchant(Enchantment.getByName(storedEnchantment.getId()), storedEnchantment.getLvl(), true);
-					});
+					if (im instanceof EnchantmentStorageMeta) {
+						EnchantmentStorageMeta esm = (EnchantmentStorageMeta) im;
+						t.getStoredEnchantments().forEach((storedEnchantment) -> {
+							esm.addStoredEnchant(storedEnchantment.get(), storedEnchantment.getLvl(), true);
+						});
+					} else {
+						t.getEnchantments().forEach((enchantment) -> {
+							im.addEnchant(enchantment.get(), enchantment.getLvl(), true);
+						});
+					}
 					// TODO repair cost
 				}
 				break;
@@ -280,7 +291,6 @@ public class GItem {
 						});
 						FireworkEffect e = FireworkEffect.builder().flicker(explosion.getFlickerAsBoolean()).withColor(c).withFade(fc).with(explosion.getTypeAsType()).trail(explosion.getTrailAsBoolean()).build();
 						fm.addEffect(e);
-						fm.setPower(3);
 					});
 				}
 				break;
@@ -315,8 +325,12 @@ public class GItem {
 				if (true) {
 					PotionEffectsTag t = (PotionEffectsTag) tag;
 					PotionMeta pm = (PotionMeta) im;
-					pm.setColor(Color.fromRGB(t.getCustomPotionColor()));
-					pm.setBasePotionData(new PotionData(PotionType.valueOf(t.getPotion())));
+					if (t.getCustomPotionColor() != 0) {
+						pm.setColor(Color.fromRGB(t.getCustomPotionColor()));
+					}
+					if (t.getPotion() != null) {
+						pm.setBasePotionData(t.getPotionData());
+					}
 					t.getCustomPotionEffects().forEach((potionEffect) -> {
 						pm.addCustomEffect(potionEffect.get(), true);
 					});
@@ -336,7 +350,7 @@ public class GItem {
 					WrittenBookTag t = (WrittenBookTag) tag;
 					BookMeta bm = (BookMeta) im;
 					for (int ii = 0; ii < t.getPages().size(); ii++) {
-						bm.addPage(t.getPages().get(ii));
+						bm.addPage(new JSONObject(t.getPages().get(ii)).getString("text"));
 					}
 					bm.setAuthor(t.getAuthor());
 					bm.setTitle(t.getTitle());
@@ -345,7 +359,7 @@ public class GItem {
 			case 16:
 				if (true) {
 					FireworkStarTag t = (FireworkStarTag) tag;
-					FireworkMeta fm = (FireworkMeta) im;
+					FireworkEffectMeta fm = (FireworkEffectMeta) im;
 					List<Color> c = new ArrayList<Color>();
 					List<Color> fc = new ArrayList<Color>();
 					t.getExplosion().getColors().forEach((color) -> {
@@ -355,13 +369,14 @@ public class GItem {
 						fc.add(Color.fromRGB(fadeColor));
 					});
 					FireworkEffect e = FireworkEffect.builder().flicker(t.getExplosion().getFlickerAsBoolean()).withColor(c).withFade(fc).with(t.getExplosion().getTypeAsType()).trail(t.getExplosion().getTrailAsBoolean()).build();
-					fm.addEffect(e);
-					fm.setPower(3);
+					fm.setEffect(e);
 				}
 				break;
 			}
+			if (setItemMeta) {
+				i.setItemMeta(im);
+			}
 		});
-		i.setItemMeta(im);
 		return i;
 	}
 }

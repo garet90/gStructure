@@ -39,4 +39,11 @@ public class EndGatewayTag extends BlockEntityTag {
 		exitPortalY = exitPortal.getInt("Y");
 		exitPortalZ = exitPortal.getInt("Z");
 	}
+
+	public boolean getExactTeleportAsBoolean() {
+		if (exactTeleport == 1) {
+			return true;
+		}
+		return false;
+	}
 }

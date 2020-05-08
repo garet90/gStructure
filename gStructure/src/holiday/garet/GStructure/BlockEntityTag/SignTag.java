@@ -1,5 +1,6 @@
 package holiday.garet.GStructure.BlockEntityTag;
 
+import org.bukkit.DyeColor;
 import net.querz.nbt.tag.CompoundTag;
 
 public class SignTag extends BlockEntityTag {
@@ -36,5 +37,15 @@ public class SignTag extends BlockEntityTag {
 		text2 = tag.getString("Text2");
 		text3 = tag.getString("Text3");
 		text4 = tag.getString("Text4");
+	}
+
+	public DyeColor getColorAsDyeColor() {
+		DyeColor[] colors = DyeColor.values();
+		for (int i = 0; i < colors.length; i++) {
+			if (this.color.equalsIgnoreCase(colors[i].toString())) {
+				return colors[i];
+			}
+		}
+		return DyeColor.RED;
 	}
 }

@@ -35,14 +35,18 @@ public class BeehiveTag extends BlockEntityTag {
 	
 	public void read(CompoundTag tag) {
 		super.read(tag);
-		CompoundTag flowerPos = tag.getCompoundTag("FlowerPos");
-		flowerPosX = flowerPos.getInt("X");
-		flowerPosY = flowerPos.getInt("Y");
-		flowerPosZ = flowerPos.getInt("Z");
+		if (tag.containsKey("FlowerPos")) {
+			CompoundTag flowerPos = tag.getCompoundTag("FlowerPos");
+			flowerPosX = flowerPos.getInt("X");
+			flowerPosY = flowerPos.getInt("Y");
+			flowerPosZ = flowerPos.getInt("Z");
+		}
 		
-		ListTag<CompoundTag> bees = tag.getListTag("Bees").asCompoundTagList();
-		bees.forEach((bee) -> {
-			this.bees.add(GHiveEntity.readNewEntity(bee));
-		});
+		if (tag.containsKey("Bees")) {
+			ListTag<CompoundTag> bees = tag.getListTag("Bees").asCompoundTagList();
+			bees.forEach((bee) -> {
+				this.bees.add(GHiveEntity.readNewEntity(bee));
+			});
+		}
 	}
 }

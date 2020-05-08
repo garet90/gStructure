@@ -45,16 +45,13 @@ public class BlockEntityTag {
 		if (id == null) {
 			id = tag.getString("id");
 		}
-		switch (id) {
+		switch (id.replaceFirst("minecraft:", "")) {
 		case "banner":
 			t = new BannerTag();
 			break;
 		case "chest":
-		case "minecraft:chest":
 		case "shulker_box":
-		case "minecraft:shulker_box":
 		case "barrel":
-		case "minecraft:barrel":
 			t = new ChestTag();
 			break;
 		case "beacon":

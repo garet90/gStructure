@@ -59,4 +59,11 @@ public class PistonTag extends BlockEntityTag {
 		extending = tag.getByte("extending");
 		source = tag.getByte("source");
 	}
+
+	public boolean getExtendingAsBoolean() {
+		if (extending == 1) {
+			return true;
+		}
+		return false;
+	}
 }

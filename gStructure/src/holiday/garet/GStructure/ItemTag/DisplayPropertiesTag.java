@@ -36,10 +36,12 @@ public class DisplayPropertiesTag extends ItemDataTag {
 		CompoundTag display = tag.getCompoundTag("display");
 		this.color = display.getInt("color");
 		this.name = display.getString("Name");
-		ListTag<StringTag> lore = display.getListTag("Lore").asStringTagList();
-		lore.forEach((l) -> {
-			this.lore.add(l.getValue());
-		});
+		if (display.containsKey("Lore")) {
+			ListTag<StringTag> lore = display.getListTag("Lore").asStringTagList();
+			lore.forEach((l) -> {
+				this.lore.add(l.getValue());
+			});
+		}
 		this.hideFlags = tag.getInt("HideFlags");
 	}
 }

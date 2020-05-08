@@ -27,9 +27,11 @@ public class BannerTag extends BlockEntityTag {
 		super.read(tag);
 		customName = tag.getString("CustomName");
 		
-		ListTag<CompoundTag> patterns = tag.getListTag("Patterns").asCompoundTagList();
-		patterns.forEach((pattern) -> {
-			this.patterns.add(GPattern.readNewPattern(pattern));
-		});
+		if (tag.containsKey("Patterns")) {
+			ListTag<CompoundTag> patterns = tag.getListTag("Patterns").asCompoundTagList();
+			patterns.forEach((pattern) -> {
+				this.patterns.add(GPattern.readNewPattern(pattern));
+			});
+		}
 	}
 }
