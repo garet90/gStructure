@@ -9,15 +9,21 @@ import holiday.garet.GStructure.BlockEntityTag.BlockEntityTag;
 
 public class StructurePaintEvent extends Event {
 	
-	boolean cancelled = false;
-	Location location;
-	GPalette palette;
-	BlockEntityTag blockEntityTag;
+	private boolean cancelled = false;
+	private Location location;
+	private GPalette palette;
+	private BlockEntityTag blockEntityTag;
+	private int buildKey;
 	
-	public StructurePaintEvent(Location location, GPalette palette, BlockEntityTag blockEntityTag) {
+	public StructurePaintEvent(Location location, GPalette palette, BlockEntityTag blockEntityTag, int buildKey) {
 		this.location = location;
 		this.palette = palette;
 		this.blockEntityTag = blockEntityTag;
+		this.buildKey = buildKey;
+	}
+	
+	public int getBuildKey() {
+		return buildKey;
 	}
 	
     private static final HandlerList HANDLERS = new HandlerList();

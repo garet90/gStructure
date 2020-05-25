@@ -93,7 +93,6 @@ public class PotionEffectsTag extends ItemDataTag {
 		case "slow_falling": type = PotionType.SLOW_FALLING; break;
 		case "long_slow_falling": type = PotionType.SLOW_FALLING; extended=true; break;
 		}
-		// TODO Auto-generated method stub
 		return new PotionData(type, extended, strong);
 	}
 }

@@ -1,5 +1,6 @@
 package holiday.garet.GStructure;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.querz.nbt.tag.CompoundTag;
@@ -46,6 +47,11 @@ public class GEntityData {
 	private byte glowing;
 	
 	private List<String> tags;
+	
+	public GEntityData() {
+		passengers = new ArrayList<GEntityData>();
+		tags = new ArrayList<String>();
+	}
 	
 	public void setId(String id) {
 		this.id = id;
@@ -307,17 +313,21 @@ public class GEntityData {
 		
 		this.silent = tag.getByte("Silent");
 		
-		ListTag<CompoundTag> Passengers = tag.getListTag("Passengers").asCompoundTagList();
-		Passengers.forEach((Passenger) -> {
-			this.passengers.add(GEntityData.readNewEntity(Passenger));
-		});
+		if (tag.containsKey("Passengers")) {
+			ListTag<CompoundTag> Passengers = tag.getListTag("Passengers").asCompoundTagList();
+			Passengers.forEach((Passenger) -> {
+				this.passengers.add(GEntityData.readNewEntity(Passenger));
+			});
+		}
 		
 		this.glowing = tag.getByte("Glowing");
 
-		ListTag<StringTag> Tags = tag.getListTag("Tags").asStringTagList();
-		Tags.forEach((TagE) -> {
-			tags.add(TagE.getValue());
-		});
+		if (tag.containsKey("Tags")) {
+			ListTag<StringTag> Tags = tag.getListTag("Tags").asStringTagList();
+			Tags.forEach((TagE) -> {
+				tags.add(TagE.getValue());
+			});
+		}
 	}
 	
 	public static GEntityData readNewEntity(CompoundTag tag) {
